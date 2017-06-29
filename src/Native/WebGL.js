@@ -34,17 +34,17 @@ var _elm_community$webgl$Native_WebGL = function () {
     return { src: src };
   }
 
-  function entity(settings, vert, frag, buffer, uniforms) {
+  function entity(settings, vert, frag, mesh, uniforms) {
 
-    if (!buffer.guid) {
-      buffer.guid = guid();
+    if (!mesh.guid) {
+      mesh.guid = guid();
     }
 
     return {
       ctor: 'Entity',
       vert: vert,
       frag: frag,
-      buffer: buffer,
+      mesh: mesh,
       uniforms: uniforms,
       settings: settings
     };
@@ -288,19 +288,19 @@ var _elm_community$webgl$Native_WebGL = function () {
   *  @param {Object} renderType
   *  @param {Number} renderType.indexSize size of the index
   *  @param {Number} renderType.elemSize size of the element
-  *  @param {Drawable} drawable a drawable object from Elm
+  *  @param {Mesh} mesh a mesh object from Elm
   *         that contains elements and optionally indices
   *  @return {Object} buffer - an object with the following properties
   *  @return {Number} buffer.numIndices
   *  @return {WebGLBuffer} buffer.indexBuffer
   *  @return {Object} buffer.buffers - will be used to buffer attributes
   */
-  function doBindSetup(gl, renderType, drawable) {
+  function doBindSetup(gl, renderType, mesh) {
     LOG('Created index buffer');
     var indexBuffer = gl.createBuffer();
     var indices = (renderType.indexSize === 0)
-      ? makeSequentialBuffer(renderType.elemSize * listLength(drawable._0))
-      : makeIndexedBuffer(drawable._1, renderType.indexSize);
+      ? makeSequentialBuffer(renderType.elemSize * listLength(mesh._0))
+      : makeIndexedBuffer(mesh._1, renderType.indexSize);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
@@ -368,7 +368,7 @@ var _elm_community$webgl$Native_WebGL = function () {
     LOG('Drawing');
 
     function drawEntity(entity) {
-      if (listLength(entity.buffer._0) === 0) {
+      if (listLength(entity.mesh._0) === 0) {
         return;
       }
 
@@ -422,12 +422,12 @@ var _elm_community$webgl$Native_WebGL = function () {
 
       setUniforms(setters, entity.uniforms);
 
-      var entityType = getRenderInfo(gl, entity.buffer.ctor);
-      var buffer = model.cache.buffers[entity.buffer.guid];
+      var entityType = getRenderInfo(gl, entity.mesh.ctor);
+      var buffer = model.cache.buffers[entity.mesh.guid];
 
       if (!buffer) {
-        buffer = doBindSetup(gl, entityType, entity.buffer);
-        model.cache.buffers[entity.buffer.guid] = buffer;
+        buffer = doBindSetup(gl, entityType, entity.mesh);
+        model.cache.buffers[entity.mesh.guid] = buffer;
       }
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.indexBuffer);
@@ -441,7 +441,7 @@ var _elm_community$webgl$Native_WebGL = function () {
         gl.enableVertexAttribArray(attribLocation);
 
         if (buffer.buffers[attribute.name] === undefined) {
-          buffer.buffers[attribute.name] = doBindAttribute(gl, attribute, entity.buffer._0, entityType.elemSize);
+          buffer.buffers[attribute.name] = doBindAttribute(gl, attribute, entity.mesh._0, entityType.elemSize);
         }
         var attributeBuffer = buffer.buffers[attribute.name];
         var attributeInfo = getAttributeInfo(gl, attribute.type);
