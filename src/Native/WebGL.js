@@ -423,11 +423,11 @@ var _elm_community$webgl$Native_WebGL = function () {
       setUniforms(setters, entity.uniforms);
 
       var entityType = getRenderInfo(gl, entity.mesh.ctor);
-      var buffer = model.cache.buffers[entity.mesh.guid];
+      var buffer = model.cache.buffers.get(entity.mesh);
 
       if (!buffer) {
         buffer = doBindSetup(gl, entityType, entity.mesh);
-        model.cache.buffers[entity.mesh.guid] = buffer;
+        model.cache.buffers.set(entity.mesh, buffer);
       }
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.indexBuffer);
@@ -624,7 +624,7 @@ var _elm_community$webgl$Native_WebGL = function () {
     model.cache.shaders = [];
     model.cache.programs = {};
     model.cache.uniformSetters = {};
-    model.cache.buffers = [];
+    model.cache.buffers = new WeakMap();
     model.cache.textures = [];
 
     // Render for the first time.
