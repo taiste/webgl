@@ -17,6 +17,13 @@ var _elm_community$webgl$Native_WebGL = function () {
       list = list._1;
     }
   }
+  function listZip(fn, list1, list2) {
+    while ((list1.ctor !== '[]') && (list2.ctor !== '[]')) {
+      fn(list1._0, list2._0);
+      list1 = list1._1;
+      list2 = list2._1;
+    }
+  }
   function listLength(list) {
     var length = 0;
     while (list.ctor !== '[]') {
