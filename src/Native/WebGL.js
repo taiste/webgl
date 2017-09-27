@@ -17,6 +17,13 @@ var _elm_community$webgl$Native_WebGL = function () {
       list = list._1;
     }
   }
+  function listZip(fn, list1, list2) {
+    while ((list1.ctor !== '[]') && (list2.ctor !== '[]')) {
+      fn(list1._0, list2._0);
+      list1 = list1._1;
+      list2 = list2._1;
+    }
+  }
   function listLength(list) {
     var length = 0;
     while (list.ctor !== '[]') {
@@ -641,6 +648,22 @@ var _elm_community$webgl$Native_WebGL = function () {
 
   function diff(oldModel, newModel) {
     newModel.model.cache = oldModel.model.cache;
+
+    function moveIDs(oldEntity, newEntity) {
+      if (newEntity.vert.src === oldEntity.vert.src) {
+        newEntity.vert.id = oldEntity.vert.id;
+        LOG('Copying id ' + oldEntity.vert.id);
+      }
+
+      if (newEntity.frag.src === oldEntity.frag.src) {
+        newEntity.frag.id = oldEntity.frag.id;
+        LOG('Copying id ' + oldEntity.frag.id);
+      }
+    }
+
+    if (listLength(oldModel.model.entities) === listLength(newModel.model.entities)) {
+      listZip(moveIDs, oldModel.model.entities, newModel.model.entities);
+    }
     return {
       applyPatch: drawGL,
       data: newModel
