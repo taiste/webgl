@@ -648,6 +648,22 @@ var _elm_community$webgl$Native_WebGL = function () {
 
   function diff(oldModel, newModel) {
     newModel.model.cache = oldModel.model.cache;
+
+    function moveIDs(oldEntity, newEntity) {
+      if (newEntity.vert.src === oldEntity.vert.src) {
+        newEntity.vert.id = oldEntity.vert.id;
+        LOG('Copying id ' + oldEntity.vert.id);
+      }
+
+      if (newEntity.frag.src === oldEntity.frag.src) {
+        newEntity.frag.id = oldEntity.frag.id;
+        LOG('Copying id ' + oldEntity.frag.id);
+      }
+    }
+
+    if (listLength(oldModel.model.entities) === listLength(newModel.model.entities)) {
+      listZip(moveIDs, oldModel.model.entities, newModel.model.entities);
+    }
     return {
       applyPatch: drawGL,
       data: newModel
