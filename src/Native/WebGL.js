@@ -535,13 +535,37 @@ var _elm_community$webgl$Native_WebGL = function () {
     return uniformSetters;
   }
 
-  function setUniforms(setters, values) {
-    Object.keys(values).forEach(function (name) {
-      var setter = setters[name];
-      if (setter) {
-        setter(values[name]);
+  
+
+  function setUniforms(setters, values) {   
+    var setFunction;
+
+    var getRecursive = function(name, object) {
+      var array = name.split(".");
+
+      for (var i = 0; i < array.length; i++) {
+        var namePart = array[i];
+        object = object[namePart];
       }
-    });
+
+      return object;
+    }
+
+
+    setFunction = function (name) {      
+      var setter = setters[name];
+      var value = getRecursive(name, values);
+
+      if (setter) {
+        setter(value);
+      } else if (value !== null && typeof value === 'object'){
+        var concat = function (innerName){
+          return name + '.' + innerName;
+        };
+        Object.keys(value).map(concat).forEach(setFunction);
+      }
+    }
+    Object.keys(values).forEach(setFunction);
   }
 
   // VIRTUAL-DOM WIDGET
